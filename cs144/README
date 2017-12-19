@@ -1,0 +1,3 @@
+Directories:
+  tcp: Implementation of a reliable, stop-and-wait and sliding window transport layer on top of the IP layer
+  router: Implementation of a router configured with a static routing table and a NAT that can handle ICMP and TCP.

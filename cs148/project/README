@@ -1,0 +1,12 @@
+Starting the game
+-----------------
+make
+./game
+
+Keyboard navigation
+-------------------
+left/right/up/down: move player
+'j' or space bar: jump
+1-6 keys: move camera
+'q': quit program
+'r': reset camera

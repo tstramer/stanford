@@ -1,0 +1,116 @@
+High-level structure
+--------------------
+1) Read data from TCP connection, send data across the network,
+and keep reading/sending until the send window is full. The send window
+is a circular array buffer of packets. The index of a packet with
+sequence number x is (x - 1) % window_size. The send window holds
+each packet that is currently in flight and not acknowleged so that it
+can be re-transmitted if necessary. A couple other variables are also stored
+to keep track of the window: the last seqno sent and the last ackno received.
+The valid sequence numbers in the window is defined by: 
+ (last_ackno_recvd, last_ackno_recvd + window_size).
+The in-flight packets in the window is defined by: 
+ (last_ackno_recvd, last_seqno_sent)
+If the number of in-flight packets is less than the window size than we can read
+/ send more packets. We also maintain a timestamp of when each in-flight packet
+was sent, and re-transmit the packet if an acknowledgment is not received
+within the specified timeout. A couple other variables are stored:
+  - whether EOF has been read - if true, any new input from the TCP connection
+    is ignored.
+  - whether there is a partial in-flight packet - if true, we don't read from
+    the TCP connection until receiving an acknowledgment of that packet, per
+    Nagles algorithm. 
+
+2) Read data packets from the other side of the connection, write data received to
+a output TCP connection if its seqno is 1 more than the last one written. Otherwise
+add it to the receiver window, which is a circular array buffer of packets holding
+packets received that are in the current window but are received out-of-order. Maintain
+a variable representing the last ackno sent.
+The valid sequence numbers in the receive window is defined by:
+ (last_ackno_sent, last_ackno_sent + window_size)
+When a data packet with seqno=last_ackno_sent is received, write the packet to
+the output TCP connection as well as all subsequent buffered packets until the
+next missing data packet in the window. When the packets have been outputted,
+send a single ack with a ackno=1 + max seqno outputted. If we cannot
+output all packets because the buffer is full, wait until it is cleared to
+output the rest. Also keep a variable indicating how much of the last
+packet has been written since it can be partially written if the output buffer
+fills up. If an EOF is received from the other side of the connection, send
+an acknowledgment of it, close the output connection, and flip a bit
+indicating that the last packet received was an EOF. If the other side of the
+connection tries to send another data packet after this, ignore it. However,
+if an EOF is received when there are still buffered packets, ignore it since
+we assume the packet was received out-of-order and there is still a packet
+in-flight.
+
+3) A timer that retransmits packets that have not been acknowledged within a
+specified timeout as well as closes the connection if all criteria is met
+(as described in the slides). As described earlier, we have variables for 
+whether the last packet received is an EOF, whether we have read EOF from
+the input connection, whether we have packets in flight, and whether we
+have packets buffered.
+
+
+Most troublesome parts
+----------------------
+The most troublesome part of this assignment was thinking about the window.
+There were a bunch of edge cases related to packets being dropped, duplicated,
+etc and making sure to account for all these cases was a challenge.
+
+
+Tests performed
+---------------
+I performed many manual tests with both sides running my code as well as one side
+running my code and the other running the reference. For each of these, I performed 
+various tests: sending large input from one side to the other, sending large input
+concurrently from both sides, sending EOF on both sides and making sure the connection
+was closed, and setting combinations of parameters to drop/duplicate/mangle packets. All
+of these seemed to pass. I also ran the tester with various window sizes in both client
+and server mode and everything passed.
+
+
+Remaining bugs
+--------------
+None that I know of. Note that in my last lab I got feedback saying I could use the
+built-in boolean type in c99, however when I tried to compile with the c99 flag I got
+many errors from rlib.c.
+
+
+Valgrind
+--------
+myth13: ./uc myth14 6767 < /bin/bash
+myth14: valgrind ./reliable --drop=3 --corrupt=3 --delay=3 --duplicate=3 -w 900 -c 6767 myth15:53535
+myth15: valgrind ./reliable --drop=3 --corrupt=3 --delay=3 --duplicate=3 -w 895 -s 53535 myth16:23423
+myth16: ./uc -l 23423 > bash
+
+myth14 output:
+==7861== HEAP SUMMARY:
+==7861==     in use at exit: 48 bytes in 3 blocks
+==7861==   total heap usage: 22 allocs, 19 frees, 933,864 bytes allocated
+==7861== 
+==7861== LEAK SUMMARY:
+==7861==    definitely lost: 0 bytes in 0 blocks
+==7861==    indirectly lost: 0 bytes in 0 blocks
+==7861==      possibly lost: 0 bytes in 0 blocks
+==7861==    still reachable: 48 bytes in 3 blocks
+==7861==         suppressed: 0 bytes in 0 blocks
+==7861== Rerun with --leak-check=full to see details of leaked memory
+==7861== 
+==7861== For counts of detected and suppressed errors, rerun with: -v
+==7861== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+myth15 output:
+==2794== HEAP SUMMARY:
+==2794==     in use at exit: 48 bytes in 3 blocks
+==2794==   total heap usage: 19 allocs, 16 frees, 928,564 bytes allocated
+==2794== 
+==2794== LEAK SUMMARY:
+==2794==    definitely lost: 0 bytes in 0 blocks
+==2794==    indirectly lost: 0 bytes in 0 blocks
+==2794==      possibly lost: 0 bytes in 0 blocks
+==2794==    still reachable: 48 bytes in 3 blocks
+==2794==         suppressed: 0 bytes in 0 blocks
+==2794== Rerun with --leak-check=full to see details of leaked memory
+==2794== 
+==2794== For counts of detected and suppressed errors, rerun with: -v
+==2794== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

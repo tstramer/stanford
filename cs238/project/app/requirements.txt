@@ -1,0 +1,15 @@
+Flask
+google-cloud
+gunicorn
+oauth2client
+Flask-SQLAlchemy
+PyMySQL
+six
+requests[security]
+requests_oauthlib
+python-twitter
+honcho
+psq
+wtforms
+apscheduler
+chatterbot

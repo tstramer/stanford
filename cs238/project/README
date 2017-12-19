@@ -1,0 +1,5 @@
+Overview
+--------
+This project tackles the problem of social media filter bubbles, which is a phe- nomenon in which a user’s social media feed become tailored (either via an al- gorithm or manually or both) over time to agree with their preconceived notions. There has been very little work to address this problem by social media companies themselves, so we build a Twitter bot to target and engage users of specific political viewpoints with content that they may disagree with. Using Q-learning, the bot learns the right mix of complimentary, mime, conversational, and political content to engage the user with to maximize engagement. The model is able to produce a positive response from over 25% of users engaged.
+
+See writeup.pdf for more details.

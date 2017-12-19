@@ -1,0 +1,94 @@
+High-level structure
+--------------------
+
+sr_nat.c
+--------
+Contains data structures for storing the mapipngs between internal and external
+addresses. Uses a linked list to store these mappings. A global mutex is used
+to ensure that only one thread can access these data structures at any one
+point. A global counter is used to generate a unique ID for a ICMP request
+starting at 0. Similarly, a counter is used to generate a unique port for
+a TCP request starting at 1024. For each mapping, we also store a list
+of active TCP connections. For each connection we store the IP/port of
+the connection as well as the current state of the TCP session. Finally
+there is a timer thread that removes stale ICMP and TCP mappings. We also
+store a special list of un-solicited syn requests in order to be able
+to respond with an ICMP port un-reachable if a syn is not sent from
+the internal side within 6 seconds. The logic to send the ICMP
+un-reachable message is in the timer thread.
+
+sr_nat_handler.c
+----------------
+Contains the logic for re-writing packets. Receives IP packets, checks if
+the NAT should re-write the packet (either because it's an internal packet
+destined to a non-NAT host or because it's an external packet destined
+for the NAT). If so, it tries to find a mapping and re-writes the packet.
+If no mapping exists and the request is internal, a new mapping is created.
+
+The below high-level structure info is repated from lab 3 to aid the grader:
+
+sr_router.c
+-----------
+Contains high-level logic for routing packets to appropriate functions.
+Specifically, a packet will fall into one of 5 groups: 1) ARP request
+2) ARP reply 3) IP packet for a different router 4) ICMP packet for the current
+router or 5) TCP/UDP packet for the current router. Any other packet is
+dropped.
+
+sr_arp.c
+--------
+Contains helpers for handling arp requests and responses, sending arp requests,
+and converting arp headers to/from network-byte order.
+For an ARP reply, the newly learned addr/ip is inserted into the arp cache.
+If there are any packets waiting on the addr, they are sent out as well. 
+The file also contains a function to periodically check outstanding arp requests
+to see if they need to be re-sent, which is called from sr_arpcache.c.
+
+sr_eth.c
+--------
+Contains helpers for converting ethernet headers to/from network-byte order
+as well as a helper for initializing an ethernet header.
+
+sr_icmp.c
+---------
+Contains helpers for handling incoming ICMP packets, sending ICMP packets
+of various kinds, and checking if an ICMP packet has a valid checksum.
+For an incoming ICMP packet for the current router, it is first checked if the
+ICMP has a valid checksum and is an echo request. If so, it sends an echo reply
+back to the original host. If it is not an echo request, the packet is dropped.
+A separate structure 'sr_icmp_t11_hdr_t' is defined in sr_protocols.h that
+defines type 11 ICMP messages (e.g. time exceeded).
+
+sr_ip.c
+-------
+Contains helpers for handling incoming IP packets for other routers,
+incoming TCP/UDP IP packets for the current router, creating new IP
+packets, finding the LPM match for an IP address to the routing
+table, converting IP packets to/from network-byte order, and checking
+if an IP addr belongs to the current router.
+The LPM algorithm works by iterating over each entry in the routing
+table and checking which one has the longest prefix match with the
+given IP.
+
+
+Troublesome parts of code
+-------------------------
+The most troublesome part of the code was figuring out the state of the
+TCP session. It involved a lot of small details of how the TCP state
+diagram works and also highlited to me some of the bad sides of a 
+NAT.
+
+
+Tests performed
+---------------
+1) Ran manual tests with nat enabled - ping/traceroute between all 
+   pairs of client, server, and router interfaces, downlad a file from
+   the server, ping/traceroute unreachable hosts, etc.
+2) Ran manual tests to ensure an un-solicited syn was handled correctly.
+2) Ran valgrind to detect memory leaks.
+3) Ran the online tester script - all passed.
+
+
+Remaining bugs
+--------------
+None that I know of

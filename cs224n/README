@@ -1,0 +1,2 @@
+Directories:
+  project: End-to-end neural network architecture for the SQuAD task that combines ideas from several recently proposed architectures: Match-LSTM, Dynamic Co-attention, and Pointer Networks

@@ -1,0 +1,7 @@
+Overview
+--------
+In recent years, there has been an explosion in usage of online social networks such as Twitter. This has led to an abundance of content around a wide variety of topics, which can often be overwhelming for users trying to find content around a specific set of interests. Previous work on topic­modeling Twitter content has largely focused on classifying tweets or authors into a static set of categories, like ‘Sports’ or ‘Politics’. In reality, however, interests tend to be more fine­grained and dynamic. For example, a user may be interested in the 2016 presidential election, the world series, or a recent natural disaster. Furthermore, a user is not always interested in consuming a firehose of content around a topic, but rather a filtered stream of content from just influential users for that topic.
+
+The goal of this paper is two­folds: 1) to build a model to identify a fuzzy topic taxonomy on Twitter, and 2) to identify influential users within each topic.
+
+See writeup.pdf for more details.

@@ -1,0 +1,5 @@
+Overview
+--------
+This project introduces DeepSynth, an end-to-end neural network model for generating the sound of a musical instru- ment based on a silent video of it being played. We specif- ically focus on building a synthesizer for the piano, but the ideas proposed in this paper are applicable to a wide range of musical instruments. At a high level, the model consists of a convolutional neural network (CNN) to extract features from the raw video frames and two stacked neural autore- gressive models, one to encode the spatiotemporal features of the video and the other to generate the raw audio wave- form. 
+
+See writeup.pdf for more details.

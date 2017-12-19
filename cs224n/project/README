@@ -1,0 +1,5 @@
+Overview
+--------
+Answering questions automatically based on context has been a long-standing problem in Machine Learning and Natural Language Processing. In recent years, end-to-end neural architectures have led to new, powerful models that achieve ground-breaking performance on question answering tasks. The Stanford Ques- tion Answering Dataset (SQuAD) provides a dataset of real questions and an- swers. In this paper, we build an end-to-end neural network architecture for the SQuAD task that combines ideas from several recently proposed architectures: Match-LSTM, Dynamic Co-attention, and Pointer Networks. 
+
+See writeup.pdf for more details

@@ -1,0 +1,22 @@
+Overview
+--------
+The goal of my project was to build a production-quality fluid simulation on the GPU using OpenCL. The hope was that I would be able to simulate many more particles and build a more realistic fluid simulation by moving computation to the GPU. My specific accomplishments were to parallelize the major parts of the PBF algorithm, specifically:
+• Particle computations: For every place in the algorithm that starts with ‘for all particles’ (line 1, 5, 9, 12, 16, and 20), I used the GPU to evaluate the computation for each particle in parallel.
+• Nearest-neighbor search: I created a parallel version of the particle binning algorithm by first computing each particle’s bin based on its position in parallel. Then, using a separate thread per bin, I looped over the particles and assigned particles to bins. Finally, in parallel I assigned each particle its neighbors based on neighboring bins.
+
+The code is written in C++ and OpenCL. I also used openFrameworks, a C++ framework that provides many useful libraries providing abstractions over OpenGL / OpenCL / etc for more easily writing graphics code.
+
+Controls
+--------
+- Camera controls:
+    1) Hold and drag: Rotates the camera
+    2) Two finger pinch: Zoom in/out
+    3) Click: Reset
+- Simulation controls:
+    1) 's': Start/pause simulation
+    2) 'p': Start capturing screenshots of the simulation (stored in code/apps/myApps/positionBasedFluids/bin/data)
+    3) '1'/'2'/'3': Set the axis of the bounding box to control (1=x, 2=y, 3=z). Once in this mode, use the left and right arrows to decrease / increase the size of the bounding box in that direction.  
+
+Demo
+----
+The file demo.gif in the root directory contains a demo of rendering 500,000 particles.
