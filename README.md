@@ -7,6 +7,7 @@ Classes:
   4. cs224n: Natural Language Processing with Deep Learning
   5. cs231n: Convolutional Neural Networks for Visual Recognition
   6. cs238: Decision Making under Uncertainty
+  7. cs229: Machine Learning
 
 Projects:
   1. cs144/tcp: Implementation of a reliable, stop-and-wait and sliding window transport layer on top of the IP layer
@@ -16,3 +17,4 @@ Projects:
   5. cs224n/project: End-to-end neural network architecture for the SQuAD task that combines ideas from several recently proposed architectures: Match-LSTM, Dynamic Co-attention, and Pointer Networks
   6. cs231n/project: End-to-end neural network model for generating the sound of a musical instrument based on a silent video of it being played
   7. cs238/project: A Twitter bot to target and engage users of specific political viewpoints with content that they may disagree with using Q-learning
+  8. cs229/project: Project to find influencers within fuzzy topics on Twitter using a variant of LDA
